@@ -73,6 +73,7 @@ All tools accept paths to `.docx` files on the filesystem accessible by the serv
 |------|-------------|
 | `generate_from_template` | Generate a .docx from a template and a JSON object. Template uses Jinja2: `{{ name }}`, `{{ date }}`. |
 | `create_document` | Create a new .docx from scratch with a title and list of paragraphs. |
+| `create_document_formatted` | Create a well-formatted .docx with title, subtitle, headings (level 1–2), paragraphs, and bullet lists; optional Calibri 11pt default font. |
 | `replace_text` | Replace placeholders in an existing .docx (Jinja2) and save to a new file. |
 | `insert_paragraph` | Insert a paragraph at the end of an existing .docx and save to a new file. |
 | `merge_documents` | Merge multiple .docx files into one (uses the first file's styles). |
@@ -91,6 +92,18 @@ All tools accept paths to `.docx` files on the filesystem accessible by the serv
 - **title**: Document title.
 - **paragraphs**: Array of strings, e.g. `["First paragraph.", "Second paragraph."]`.
 
+### Example: create_document_formatted
+
+- **outputPath**: Path for the output file.
+- **content_blocks**: Array of objects. Each object has **type** and:
+  - `{"type": "heading", "level": 1 or 2, "text": "Section title"}`
+  - `{"type": "paragraph", "text": "Body text."}`
+  - `{"type": "list_bullet", "items": ["Item one.", "Item two."]}`
+- **title** (optional): Centered document title.
+- **subtitle** (optional): Centered subtitle.
+- **font_name** (optional): Default font, e.g. `"Calibri"`.
+- **font_size_pt** (optional): Default font size, e.g. `11`.
+
 ### Example: extract_text
 
 - **documentPath**: Path to the `.docx` file. Returns `{ "text": "..." }`.
@@ -102,6 +115,23 @@ Output is standard Office Open XML (OOXML) and is compatible with Microsoft Word
 ## Text encoding
 
 All text inputs are expected to be **Unicode (UTF-8)**. The server normalizes text to Unicode NFC before writing, so Portuguese and other accented characters are stored correctly.
+
+## Agent Skills
+
+This repository includes **Agent Skills** (SKILL.md) in [.cursor/skills/](.cursor/skills/) so that Cursor’s agent uses the mcp-docx MCP with better formatting, generation, and fluency. When you open this project in Cursor, the agent can load these skills automatically (from `.cursor/skills/` or `.agents/skills/`).
+
+| Skill | Description |
+|-------|-------------|
+| **mcp-docx-quick-reference** | One-page reference: tool names, parameters, and content_blocks format. |
+| **mcp-docx-formatting** | Use create_document_formatted with headings, paragraphs, and bullet lists for professional layout. |
+| **mcp-docx-simple-vs-formatted** | When to use create_document vs create_document_formatted. |
+| **mcp-docx-fluency** | Map natural-language requests to the right mcp-docx tool and parameters. |
+| **mcp-docx-document-structures** | Ready-made structures: meeting minutes, report, presentation script, checklist. |
+| **mcp-docx-templates** | Use generate_from_template and replace_text for template-based generation. |
+| **mcp-docx-merge-extract** | Use merge_documents, extract_text, and get_document_info. |
+| **mcp-docx-encoding** | UTF-8 and NFC normalization; avoid mojibake in generated documents. |
+
+Skills follow the [Agent Skills](https://agentskills.io/specification) format. They do not change the MCP server; they guide the agent on when and how to call the tools.
 
 ## Contributing
 

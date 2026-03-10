@@ -1,10 +1,15 @@
-"""Generate tools: create_document, generate_from_template."""
+"""Generate tools: create_document, create_document_formatted, generate_from_template."""
 
 from pathlib import Path
 
 from docxtpl import DocxTemplate
 
-from .lib import create_minimal_document, ensure_dir, normalize_text
+from .lib import (
+    create_minimal_document,
+    create_document_formatted as build_formatted_doc,
+    ensure_dir,
+    normalize_text,
+)
 
 
 def create_document(output_path: str, title: str, paragraphs: list[str]) -> dict:
@@ -14,6 +19,34 @@ def create_document(output_path: str, title: str, paragraphs: list[str]) -> dict
     doc = create_minimal_document(normalize_text(title), [normalize_text(p) for p in paragraphs])
     doc.save(output_path)
     return {"outputPath": output_path, "message": f"Document created at {output_path}"}
+
+
+def create_document_formatted(
+    output_path: str,
+    content_blocks: list[dict],
+    title: str | None = None,
+    subtitle: str | None = None,
+    font_name: str = "Calibri",
+    font_size_pt: float = 11,
+) -> dict:
+    """
+    Create a well-formatted .docx with title, optional subtitle, and rich content.
+    content_blocks: list of objects:
+      - {"type": "heading", "level": 1 or 2, "text": "..."}
+      - {"type": "paragraph", "text": "..."}
+      - {"type": "list_bullet", "items": ["...", "..."]}
+    """
+    output_path = str(Path(output_path).resolve())
+    ensure_dir(Path(output_path))
+    doc = build_formatted_doc(
+        content_blocks=content_blocks,
+        title=title,
+        subtitle=subtitle,
+        font_name=font_name,
+        font_size_pt=font_size_pt,
+    )
+    doc.save(output_path)
+    return {"outputPath": output_path, "message": f"Formatted document created at {output_path}"}
 
 
 def generate_from_template(template_path: str, output_path: str, data: dict) -> dict:
