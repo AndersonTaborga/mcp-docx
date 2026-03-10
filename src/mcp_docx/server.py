@@ -22,6 +22,30 @@ def create_document(output_path: str, title: str, paragraphs: list[str]) -> str:
 
 
 @mcp.tool()
+def create_document_formatted(
+    output_path: str,
+    content_blocks: list[dict],
+    title: str | None = None,
+    subtitle: str | None = None,
+    font_name: str = "Calibri",
+    font_size_pt: float = 11,
+) -> str:
+    """Create a well-formatted .docx with title, subtitle, headings, paragraphs, and bullet lists.
+    content_blocks: list of objects - {\"type\": \"heading\", \"level\": 1 or 2, \"text\": \"...\"},
+    {\"type\": \"paragraph\", \"text\": \"...\"}, or {\"type\": \"list_bullet\", \"items\": [\"...\", \"...\"]}.
+    Uses Calibri 11pt by default; set font_name and font_size_pt to change."""
+    result = tools_generate.create_document_formatted(
+        output_path=output_path,
+        content_blocks=content_blocks,
+        title=title,
+        subtitle=subtitle,
+        font_name=font_name,
+        font_size_pt=font_size_pt,
+    )
+    return json.dumps(result, ensure_ascii=False)
+
+
+@mcp.tool()
 def generate_from_template(template_path: str, output_path: str, data: dict) -> str:
     """Generate a .docx from a template. Template uses Jinja2 placeholders: {{ name }}, {{ date }}."""
     result = tools_generate.generate_from_template(
