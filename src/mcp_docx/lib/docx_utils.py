@@ -5,9 +5,11 @@ from pathlib import Path
 from typing import Any
 
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
+
+_MSG_IMAGES = "Install with: pip install mcp-docx[images]"
 
 
 def normalize_text(s: str) -> str:
@@ -69,10 +71,11 @@ def create_document_formatted(
         run = p.add_run(normalize_text(title))
         run.bold = True
         run.font.size = Pt(18)
-        p.style = doc.styles["Title"]
+        p.paragraph_format.space_after = Pt(6)
     if subtitle:
         p = doc.add_paragraph(normalize_text(subtitle))
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_after = Pt(12)
         doc.add_paragraph()
 
     for block in content_blocks:
@@ -80,12 +83,30 @@ def create_document_formatted(
         if btype == "heading":
             level = min(max(int(block.get("level", 1)), 1), 2)
             text = block.get("text", "")
-            doc.add_heading(normalize_text(text), level=level)
+            h = doc.add_heading(normalize_text(text), level=level)
+            h.paragraph_format.space_after = Pt(6) if level == 2 else Pt(12)
         elif btype == "list_bullet":
             items = block.get("items") or []
             for item in items:
                 doc.add_paragraph(normalize_text(str(item)), style="List Bullet")
+        elif btype == "image":
+            image_path = block.get("path", "")
+            width_inches = float(block.get("width_inches", 2.0))
+            if not image_path:
+                raise ValueError("content_blocks image block must have \"path\"")
+            try:
+                from PIL import Image
+            except ImportError as e:
+                raise RuntimeError(f"Pillow is not installed. {_MSG_IMAGES}") from e
+            path = Path(image_path).resolve()
+            if not path.is_file():
+                raise FileNotFoundError(f"Image file not found: {path}")
+            with Image.open(path) as img:
+                img.verify()
+            doc.add_picture(str(path), width=Inches(width_inches))
+            doc.paragraphs[-1].paragraph_format.space_after = Pt(6)
         else:
             text = block.get("text", "")
-            doc.add_paragraph(normalize_text(text))
+            p = doc.add_paragraph(normalize_text(text))
+            p.paragraph_format.space_after = Pt(6)
     return doc

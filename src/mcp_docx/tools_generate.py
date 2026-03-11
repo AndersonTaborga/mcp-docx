@@ -35,6 +35,7 @@ def create_document_formatted(
       - {"type": "heading", "level": 1 or 2, "text": "..."}
       - {"type": "paragraph", "text": "..."}
       - {"type": "list_bullet", "items": ["...", "..."]}
+      - {"type": "image", "path": "...", "width_inches": 2.0}  (requires mcp-docx[images])
     """
     output_path = str(Path(output_path).resolve())
     ensure_dir(Path(output_path))
@@ -59,3 +60,22 @@ def generate_from_template(template_path: str, output_path: str, data: dict) -> 
     doc.render(normalized)
     doc.save(output_path)
     return {"outputPath": output_path, "message": f"Document generated at {output_path}"}
+
+
+_MSG_MAILMERGE = "Install with: pip install mcp-docx[mailmerge]"
+
+
+def mail_merge(template_path: str, output_path: str, merge_data: dict) -> dict:
+    """Fill Word mail-merge fields in a .docx template. Template uses Word merge fields (e.g. «Nome», «Data»). Requires docx-mailmerge: pip install mcp-docx[mailmerge]."""
+    try:
+        from mailmerge import MailMerge
+    except ImportError as e:
+        raise RuntimeError(f"docx-mailmerge is not installed. {_MSG_MAILMERGE}") from e
+    template_path = str(Path(template_path).resolve())
+    output_path = str(Path(output_path).resolve())
+    ensure_dir(Path(output_path))
+    normalized = {k: normalize_text(v) if isinstance(v, str) else v for k, v in merge_data.items()}
+    with MailMerge(template_path) as document:
+        document.merge(**normalized)
+        document.write(output_path)
+    return {"outputPath": output_path, "message": f"Mail-merge document saved at {output_path}"}

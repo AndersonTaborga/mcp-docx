@@ -11,7 +11,8 @@ Use mcp-docx tools when the user wants to **fill a template** or **replace place
 ## When to use
 
 - User has a .docx file with placeholders like `{{ name }}`, `{{ date }}` (Jinja2 syntax).
-- User says: "fill this template", "generate from template", "replace name and date", "use this document as template".
+- User has a .docx with **Word mail-merge fields** (e.g. `«Nome»`, `«Data»`) — use **mail_merge** (requires `pip install mcp-docx[mailmerge]`).
+- User says: "fill this template", "generate from template", "replace name and date", "use this document as template", "mail merge".
 
 ## generate_from_template
 
@@ -24,6 +25,15 @@ Use when: user provides (or you can assume) a **template file** and a **data obj
 5. Tell the user the file was written to output_path.
 
 If the user says "replace X and Y" but does not have a separate template file, treat the existing document as the template: use **replace_text** (see below) or, if the doc is the template, use **generate_from_template** with that document as template_path.
+
+## mail_merge
+
+Use when: the template is a .docx with **Word mail-merge fields** (double chevrons like `«Nome»`, `«Data»`), not Jinja2. Requires optional extra: `pip install mcp-docx[mailmerge]`.
+
+1. Get **template_path**: path to the .docx with merge fields.
+2. Get **output_path**: where to save the filled document.
+3. Get **merge_data**: object mapping field names to values, e.g. `{"Nome": "João", "Data": "2025-01-15"}`. Field names must match exactly (including accents).
+4. Call **mail_merge** with template_path, output_path, merge_data.
 
 ## replace_text
 

@@ -17,7 +17,7 @@ Use these mcp-docx tools for combining documents, extracting text, or reading me
 3. Call **merge_documents** with input_paths and output_path.
 4. Confirm the merged file path. Note: merging is in order; first document’s styling applies.
 
-If the user gives only one file, ask for at least one more or clarify. If they mention PDF or other formats, say that mcp-docx only works with .docx.
+If the user gives only one file, ask for at least one more or clarify. If they need **PDF → .docx**, use **convert_pdf_to_docx** (requires `pip install mcp-docx[pdf]`). If they need **.docx → HTML**, use **docx_to_html** (requires `pip install mcp-docx[html]`). For other format conversions, use **convert_document** with Pandoc (requires `pip install mcp-docx[pandoc]` and Pandoc on PATH).
 
 ## extract_text
 

@@ -11,6 +11,20 @@ dependencies = [
     "docxtpl>=0.16.0",
 ]
 
+[project.optional-dependencies]
+images = ["Pillow>=9.0.0"]
+pdf = ["pdf2docx>=0.5.0"]
+html = ["mammoth>=1.6.0"]
+mailmerge = ["docx-mailmerge>=0.5.0"]
+pandoc = ["pypandoc>=1.11"]
+all = [
+    "Pillow>=9.0.0",
+    "pdf2docx>=0.5.0",
+    "mammoth>=1.6.0",
+    "docx-mailmerge>=0.5.0",
+    "pypandoc>=1.11",
+]
+
 [project.scripts]
 mcp-docx = "mcp_docx.server:main"
 
